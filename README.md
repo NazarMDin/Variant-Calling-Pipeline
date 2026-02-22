@@ -1,53 +1,46 @@
 # Variant Calling Pipeline with DeepVariant and Clair3
 
-This repository contains a Nextflow pipeline for calling short variants from PacBio HiFi reads using **DeepVariant** and **Clair3**, followed by benchmarking against the GIAB HG002 truth set (GRCh38, chr1-22) using **hap.py**.
+This repository provides a complete workflow for calling short variants from PacBio HiFi reads aligned to GRCh38, using **DeepVariant** and **Clair3**, and benchmarking against the **GIAB HG002 truth set** (chr1‑22) with **hap.py**.
 
-The pipeline is containerized with **Singularity** (primary) and **Docker** (fallback). Due to system limitations (user namespaces disabled), Singularity failed; therefore, manual Docker commands are provided as a working alternative.
+The pipeline is implemented in **Nextflow** with container support (Singularity + Docker). Due to system‑specific limitations (user namespaces disabled), a fully manual Docker‑based fallback is also provided.
 
 ---
 
-## Requirements
+## 📦 Requirements
 
-- **Nextflow** (>=21.04) – [installation guide](https://www.nextflow.io/docs/latest/getstarted.html)
-- **Singularity** (>=3.5) OR **Docker** (>=20.10)
-- Healthy computation power recommended 
+- **Nextflow** (≥21.04) – [install](https://www.nextflow.io/docs/latest/getstarted.html)
+- **Singularity** (≥3.5) **or** **Docker** (≥20.10)
+- **minimap2** (for alignment) – `conda install -c bioconda minimap2` or `sudo apt install minimap2`
+- **samtools** – `conda install -c bioconda samtools` or `sudo apt install samtools`
+- Healthy computational power is recommended
 - Input files (see below)
 
 ---
 
-## Input Data
+## 📥 Input Data
 
-Place the following files in the project root:
+You need the following files (adjust paths as needed):
 
-- `aligned_reads.bam` + `aligned_reads.bam.bai` – HiFi reads aligned to GRCh38
-- `GCF_000001405.40_GRCh38.p14_genomic.fna` – Reference genome
-- `GCF_000001405.40_GRCh38.p14_genomic.fna.fai` – Reference index
-- `GCF_000001405.40_GRCh38.p14_genomic.dict` – Reference dictionary
-- `giab_truth/` – Directory containing:
-  - `HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz` + `.tbi`
-  - `HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed`
-- `singularity_images/` – Directory with `.sif` files (DeepVariant, Clair3, hap.py) – *optional if using Docker*
+- **FASTQ** – HiFi reads (e.g., `m21009_241011_231051.hifi_reads.fastq.gz`)
+- **Reference genome** – GRCh38 (FASTA) from NCBI: `GCF_000001405.40_GRCh38.p14_genomic.fna`
+- **Truth set** – GIAB HG002 v4.2.1 for chr1‑22:
+  - VCF: `HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz`
+  - Index: `HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi`
+  - BED: `HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed`
+- **Singularity images** (if using Singularity):
+  - `deepvariant_1.6.0.sif`
+  - `clair3_latest.sif`
+  - `happy.sif` (hap.py)
 
----
-
-## Pipeline Overview
-
-The Nextflow pipeline (`main.nf`) performs the following steps:
-
-1. **DeepVariant** – calls variants using `make_examples`, `call_variants`, `postprocess_variants`
-2. **Clair3** – calls variants with HiFi model
-3. **Contig Renaming** – converts accession-based contigs (e.g., `NC_000001.11`) to `chr1` format using `bcftools`
-4. **Benchmarking** – runs hap.py for each caller against GIAB truth
-
-Results are saved in the `results/` directory.
+If you lack the Singularity images, the pipeline can use Docker automatically (via `docker://` URIs). The only exception is `hap.py` – we provide a working Docker image in the manual fallback.
 
 ---
 
-## Usage
+## 🚀 Full Workflow
 
-### 1. Prepare Input Files
-
-Ensure all required files are present (see above). Then generate a BED file for autosomes:
+### 1. **Prepare Reference Indexes**
 
 ```bash
-awk -v OFS='\t' '{if($1 ~ /^NC_0000[0-9]+/ && $1 !~ /_/) print $1, 0, $2}' GCF_000001405.40_GRCh38.p14_genomic.fna.fai | head -22 > chr1-22.bed
+cd /path/to/project
+samtools faidx GCF_000001405.40_GRCh38.p14_genomic.fna
+samtools dict GCF_000001405.40_GRCh38.p14_genomic.fna -o GCF_000001405.40_GRCh38.p14_genomic.dict
