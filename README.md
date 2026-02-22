@@ -10,7 +10,7 @@ The pipeline is containerized with **Singularity** (primary) and **Docker** (fal
 
 - **Nextflow** (>=21.04) – [installation guide](https://www.nextflow.io/docs/latest/getstarted.html)
 - **Singularity** (>=3.5) OR **Docker** (>=20.10)
-- At least 60 GB RAM and 16 CPU cores recommended
+- Healthy computation power recommended 
 - Input files (see below)
 
 ---
