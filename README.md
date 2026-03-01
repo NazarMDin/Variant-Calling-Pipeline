@@ -79,7 +79,7 @@ The pipeline was run on a system with 60 cores and 120 GB RAM. Below are the s
 | Variant Type | TRUTH.TOTAL | TRUTH.TP  | TRUTH.FN | QUERY.TOTAL | QUERY.TP  | QUERY.FP | Recall | Precision | F1 Score |
 | ------------ | ----------- | --------- | -------- | ----------- | --------- | -------- | ------ | --------- | -------- |
 | SNP          | 3,124,567   | 3,089,012 | 35,555   | 3,101,234   | 3,089,012 | 12,222   | 0.9886 | 0.9961    | 0.9923   |
-| INDEL        | 512,345     | 482,109   | 30,236   | 498,765     | 482,109   | 16,656   | 0.9410 | —         | —        |
+| INDEL        | 512,345     | 482,109   | 30,236   | 498,765     | 482,109   | 16,656   | 0.9410 | 0.9666    | 0.9536   |
 
 
 **Interpretation:** DeepVariant shows slightly higher recall for SNPs and indels, while Clair3 achieves excellent precision for SNPs. These values are consistent with published benchmarks for HiFi data.
