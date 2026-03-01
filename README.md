@@ -29,3 +29,5 @@ Place the following files in the project root (adjust paths in `main.nf` and `ba
 curl -s https://get.nextflow.io | bash
 chmod +x nextflow
 sudo mv nextflow /usr/local/bin/
+
+### 1. Install Nextflow (if not already)
